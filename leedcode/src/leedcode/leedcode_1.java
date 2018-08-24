@@ -19,18 +19,27 @@ public class leedcode_1 {
 	 */
 	public static void main(String[] args) {
 		leedcode_1 leed1=new leedcode_1();
-	
+		int target = 9;
 		//设置初始值
-		int[] nums=new int[]{2,7,11,15}; 	//例子数据
+//		int[] nums=new int[]{2,7,11,15}; 	//例子数据
 //		int[] nums=new int[]{15,11,7,2}; 	//测试数据
 //		int[] nums=new int[]{15,11,7,8,2}; 	//测试数据
-		int target = 9;
+		//衍生方法测试值
+		int[] nums=new int[]{2,7,11,13,17,19,23,29,31,37,41}; 	//例子数据
+//		int[] nums=new int[]{0,1,2,3,4,5,6,7,8}; 				//例子数据
+		target=38;							//修改target用于测试
 		//方法一
 		int[]result=leed1.twoSum_1(nums,target);
 		System.out.println("方法一:"+result[0]+","+result[1]);
 		//方法二
-		int[]result2=leed1.twoSum_1(nums,target);
+		int[]result2=leed1.twoSum_2(nums,target);
 		System.out.println("方法二:"+result2[0]+","+result2[1]);
+		//衍生方法一
+		int[]result3=leed1.twoSum_3(nums,target);
+		System.out.println("衍生方法一:"+result3[0]+","+result3[1]);
+		//衍生方法二
+		int[]result4=leed1.twoSum_4(nums,target);
+		System.out.println("衍生方法二:"+result4[0]+","+result4[1]);
 	}
 	/**
 	 * 思路:先将int[]数组放到map中去,通过对数组循环相加求和
@@ -38,6 +47,7 @@ public class leedcode_1 {
 	 */  
 	public int[] twoSum_1(int[] nums, int target) {
     	 HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
+    	 int times = 1;
     	for(int i =0;i<nums.length;i++){
     		map.put(i,nums[i]);
     	}
@@ -49,8 +59,10 @@ public class leedcode_1 {
     			sum=nums[j]+nums[i];
     			if(sum==target)
     				result=new int[]{j,i};
+    			times++;
     		}
     	}
+    	System.out.println("方法一执行:"+times+"次");
     	// map.remove(key);//删除map中的无用数据
 		return result; 
     }
@@ -62,22 +74,136 @@ public class leedcode_1 {
 	 */
 	public int[] twoSum_2(int[] nums, int target) {
    	 	HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
-   	 	int[] result=new int[]{}; 			 //初始化为默认值,int型为0
+   	 	int[] result=new int[2]; 			 //初始化为默认值,int型为0
+   	 	int times = 1;
 	   	for(int i =0;i<nums.length;i++){
 	   	  if (map.containsKey(target - nums[i])) {
 	   		result[0]=i;
 	   		result[1]=map.get(target - nums[i]);
+	   		times++;
 	   	  }
 	   	  map.put(nums[i],i);	
 	   	}
+	   	System.out.println("方法二执行:"+times+"次");
 	   	return result; 
    }
-	
-	
-	
-	
-	
-	
+	/**	衍生题:数组有序
+	 * Given an array of integers that is already sorted in ascending order, find two numbers such that they add up to a specific target number.
+		The function twoSum should return indices of the two numbers such that they add up to the target, where index1 must be less than index2. Please note that your returned answers (both index1 and index2) are not zero-based.
+		You may assume that each input would have exactly one solution.
+		Input: numbers={2, 7, 11, 15}, target=9
+		Output: index1=1, index2=2
+	 */
+	/**
+	 * 思路:有序数组使用二分法
+	 * 给定一定有会符合的结果
+	 * 20180823
+	 */
+	public int[] twoSum_3(int[] nums, int target) {
+		int[] result=new int[2]; 			//初始化
+		int[] result_why=new int[]{}; 		//初始化
+		int i = 0;							//初始化数组最小长度
+		int len = nums.length-1;			//初始化数组 最大长度
+		int times=1;
+		while(i<len){
+			if(nums[i]+nums[len]==target){			
+				result[0]=i;
+		   		result[1]=len;
+		   		break;
+			}else if(nums[i]+nums[len]<target){
+				i +=1;
+			}else if(nums[i]+nums[len]>target){
+				len -=1;
+			}else{
+				System.out.println("***");
+			}
+			times++;
+		}
+		System.out.println("衍生方法一执行:"+times+"次");
+		return result;
+	}
+	/**
+	 * 对于衍生问题的优化
+	 * 如果数组长度足够长,可以使用分治的方式
+	 * 20180823
+	 * 优化失败,暂时没有特别好的想法--20180824
+	 */
+	public int[] twoSum_4(int[] nums, int target) {
+		int[] result=new int[2]; 				//初始化
+		int[] result_why=new int[]{}; 			//初始化//求大神告知为什么这样会报错数值越界,而上面的方法不会
+		int i = 0;								//初始化数组最小长度
+		int len = nums.length-1;				//初始化数组 最大长度
+		int num = 1;
+		while(i<len){
+			if(nums[i]+nums[len]==target){			
+				result[0]=i;
+		   		result[1]=len;
+		   		break;
+			}else if(nums[i]+nums[len]<target){
+				i=GetMedian(0,nums,i,len, target - nums[i]);		
+			}else if(nums[i]+nums[len]>target){
+				len = GetMedian(1,nums,i,len,target - nums[len]);
+			}else{
+				result=bad(nums,i,len,target);
+				break;
+			}
+			num++;
+		}
+		System.out.println("衍生方法二:程序1执行:"+num+"次");
+		return result;
+	}
+	//优化方法
+	public int GetMedian(int i,int[] nums,int start,int end,int target){
+		int left = start;
+        int right = end;
+        int times =1;
+        //左边小于右边
+        while (left < right) {
+            //左右中间点
+            int mid = left + (right - left) / 2;
+            if(i==1){
+            	if (nums[mid] > target) {
+                    //右边的等于mid-1
+                    right = mid - 1<0?0:mid-1;
+                } else {
+                    //左边等于目标+1；
+                    left = mid + 1;
+                }
+            }else{
+            	if (nums[mid] < target) {
+                    left = mid + 1;
+                } else {
+                    right = mid - 1;
+                }
+            }
+            times++;
+        }
+        System.out.println("衍生方法二,程序2执行:"+times+"次");
+           if(i==1) return right;
+           else return left;
+	}
+	public int[] bad(int[] nums, int start,int end,int target){
+		int[] result=new int[2]; 			//初始化
+		int times=1;
+		int check_start=start;
+		int check_end=end;
+		for(;start>=0;start--){
+			if(nums[start]+nums[end]==target){			 
+				result[0]=start;
+		   		result[1]=end;
+		   		break;
+			}else if(nums[start]+nums[end]<target){
+				end =end+1>=check_end?check_end:end+1;
+			}else if(nums[start]+nums[end]>target){
+				end =end-1<=check_start?check_end:end-1;
+			}else{
+				System.out.println("***");
+			}
+			times++;
+		}
+		System.out.println("衍生方法二,程序3执行:"+times+"次");
+		return result;
+	}
 	
 	
 	
